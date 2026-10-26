@@ -1,0 +1,27 @@
+{
+  "voice": "Microsoft Asaf, he-IL; synthetic, rate +2; shesh/shalosh pointed and rate 0; sibilant-preserving trim",
+  "durations": {
+    "1": 0.516,
+    "2": 0.593,
+    "3": 0.836,
+    "4": 0.444,
+    "5": 0.648,
+    "6": 0.673,
+    "7": 0.504,
+    "8": 0.557,
+    "9": 0.528,
+    "10": 0.591,
+    "work": 1.323,
+    "rest": 0.537,
+    "prepare": 0.657,
+    "between": 1.136,
+    "last": 0.949,
+    "last-set": 1.195,
+    "finish": 1.938,
+    "tone-work": 0.5,
+    "tone-rest": 0.5,
+    "tone-prepare": 0.25,
+    "tone-tick": 0.12,
+    "tone-finish": 0.85
+  }
+}

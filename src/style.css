@@ -1,0 +1,1244 @@
+/* BareFit's black/lime palette and circular timer follow the supplied client design. */
+:root {
+  font-family: Heebo, Arial, sans-serif;
+  color: #f6f6f4;
+  background: #0b0e08;
+  font-synthesis: none;
+  --lime: #b4ff00;
+  --muted: #a8afa1;
+  --border: #343a2d;
+  --panel: #151912;
+  color-scheme: dark;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button,
+a,
+input {
+  touch-action: manipulation;
+}
+button {
+  cursor: pointer;
+  color: inherit;
+}
+button {
+  border: 0;
+  background: transparent;
+}
+button:disabled,
+fieldset:disabled button {
+  opacity: 0.38;
+  cursor: default;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--lime);
+  outline-offset: 5px;
+}
+button:hover:not(:disabled) {
+  color: var(--lime);
+}
+a {
+  color: var(--lime);
+}
+button svg {
+  flex-shrink: 0;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+button {
+  transition:
+    background 0.15s,
+    color 0.15s,
+    box-shadow 0.15s;
+}
+input {
+  min-width: 0;
+}
+.display {
+  position: relative;
+  min-height: 700px;
+  height: 100vh;
+  overflow: hidden;
+  background: #070a05;
+  isolation: isolate;
+}
+.photo,
+.photo-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+.photo {
+  background: url("/assets/barefit-gym-quiet-logo.png") center center / cover no-repeat;
+}
+.photo-shade {
+  z-index: -1;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.45),
+      rgba(0, 0, 0, 0.04) 52%,
+      rgba(0, 0, 0, 0.03)
+    ),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.85), transparent 30%);
+}
+.clean .photo {
+  display: none;
+}
+.clean .photo-shade {
+  background: radial-gradient(ellipse at 50% 40%, #172009, transparent 65%);
+}
+.topbar {
+  position: absolute;
+  top: 4.3vh;
+  left: 3.8vw;
+  right: 3vw;
+  display: flex;
+  direction: ltr;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 2;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand img {
+  width: clamp(48px, 5.5vw, 90px);
+  height: auto;
+}
+.brand strong {
+  font-family: Anton, Impact, sans-serif;
+  font-size: clamp(34px, 4.3vw, 70px);
+  font-weight: 400;
+  letter-spacing: -1px;
+}
+.brand-block p {
+  margin: 18px 0 0 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  letter-spacing: 3.4px;
+  color: #d5d7d2;
+}
+.brand-block p span {
+  display: block;
+  margin-top: 13px;
+  width: 38px;
+  height: 4px;
+  background: var(--lime);
+}
+.topbar nav {
+  display: flex;
+  direction: rtl;
+  align-items: center;
+  gap: 7px;
+  background: rgba(9, 12, 6, 0.82);
+  border: 1px solid #444a38;
+  border-radius: 8px;
+  padding: 4px 9px;
+}
+.topbar nav button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  padding: 10px 8px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.status-dot,
+.studio-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #8b8e86;
+}
+.status-dot.online,
+.studio-dot {
+  background: var(--lime);
+  box-shadow: 0 0 8px #9dee0033;
+}
+.workout-info {
+  position: absolute;
+  bottom: 21%;
+  left: 4.5%;
+  width: 200px;
+  direction: rtl;
+  text-align: right;
+}
+.eyebrow {
+  font-size: 12px;
+  color: #b5beaa;
+  letter-spacing: 0.2px;
+}
+.workout-info h1 {
+  font-size: 25px;
+  margin: 8px 0 24px;
+  line-height: 1.3;
+}
+.workout-facts {
+  display: flex;
+  gap: 26px;
+}
+.workout-facts > span {
+  font-size: 11px;
+  color: #b9c0b1;
+  display: flex;
+  flex-direction: column;
+}
+.workout-facts strong {
+  font-family: Anton, Impact, sans-serif;
+  font-size: 37px;
+  font-weight: 400;
+  color: white;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+.workout-divider {
+  height: 1px;
+  background: #3e4434;
+  margin: 21px 0 17px;
+}
+.workout-info p {
+  display: flex;
+  gap: 15px;
+  font-size: 13px;
+  color: #c4cbbc;
+}
+.text-button {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  margin-top: 18px;
+  color: var(--lime);
+}
+.timer-stage {
+  position: absolute;
+  top: 6.2vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(51vw, 78vh);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.timer-face {
+  width: 100%;
+  aspect-ratio: 1;
+  position: relative;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    #030701 47%,
+    #0d1604 70%,
+    transparent 71%
+  );
+  filter: drop-shadow(0 0 17px #b4ff0012);
+}
+@media (min-width: 1100px) and (min-aspect-ratio: 7/5) {
+  .display:not(.hall) .timer-stage { left: 43%; }
+}
+.ring {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+  transform: rotate(-90deg);
+}
+.ring-outline {
+  fill: none;
+  stroke: var(--phase);
+  stroke-width: 1.5;
+  opacity: 0.85;
+}
+.ring-track {
+  fill: none;
+  stroke: #293020;
+  stroke-width: 29;
+}
+.ring-progress {
+  fill: none;
+  stroke: var(--phase);
+  stroke-width: 29;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 7px #a8f00042);
+  transition:
+    stroke-dasharray 0.1s linear,
+    stroke 0.3s;
+}
+.timer-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 2.5%;
+}
+.phase-label {
+  font-weight: 900;
+  font-size: clamp(38px, 5.5vw, 92px);
+  line-height: 1.1;
+  color: var(--phase);
+  margin: 0 0 2%;
+}
+.clock {
+  font-family: Anton, Impact, "Arial Narrow", sans-serif;
+  font-size: clamp(90px, 12.9vw, 220px);
+  font-weight: 400;
+  line-height: 1.16;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 3px 0 #ffffff07;
+  white-space: nowrap;
+}
+.round-badge {
+  border: 2px solid var(--phase);
+  border-radius: 50%;
+  width: 23%;
+  aspect-ratio: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 2%;
+  line-height: 1.15;
+}
+.round-badge > span {
+  font-size: clamp(14px, 1.65vw, 27px);
+  font-weight: 700;
+}
+.round-badge strong {
+  font-family: Anton, Impact, sans-serif;
+  font-size: clamp(29px, 3.1vw, 53px);
+  font-weight: 400;
+  line-height: 1.2;
+}
+.round-badge i {
+  font-style: normal;
+}
+.set-label {
+  font-size: 12px;
+  color: #adb89f;
+  margin-top: 2%;
+}
+.controls {
+  width: 108%;
+  display: flex;
+  gap: 13px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 11px 18px;
+  border: 1px solid #59604c;
+  border-radius: 8px;
+  background: #14180fee;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.action.primary {
+  border-color: var(--lime);
+  background: #b4ff00;
+  color: #101904;
+}
+.action.primary:hover {
+  background: #c4ff42;
+  color: #101904;
+}
+.controls .action {
+  flex: 1;
+  flex-direction: column;
+  min-height: 90px;
+  border-radius: 17px;
+  border: 1.5px solid #a1a893;
+  background: linear-gradient(0deg, #060805e6, #14190de6);
+  font-size: clamp(16px, 1.75vw, 29px);
+  padding: 14px 10px;
+  gap: 7px;
+}
+.controls .action svg {
+  width: 31px;
+  height: 31px;
+  fill: currentColor;
+  stroke-width: 1.5;
+}
+.controls .action.primary {
+  flex: 1.12;
+  border: 2px solid var(--lime);
+  background: linear-gradient(0deg, #355400b3, #132600e6);
+  box-shadow:
+    inset 0 0 20px #a2ff0060,
+    0 0 15px #a2ff0030;
+  color: #fff;
+}
+.controls .action.primary:hover {
+  background: #324d05;
+}
+.under-controls {
+  margin-top: 15px;
+  font-size: 12px;
+  color: #c9cebf;
+  text-shadow: 0 1px 4px #000;
+}
+.display-footer {
+  position: absolute;
+  bottom: 2.7%;
+  left: 4.3%;
+  right: 3.4%;
+  display: flex;
+  direction: ltr;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-left {
+  font-size: 9px;
+  font-family: Arial, sans-serif;
+  letter-spacing: 1.8px;
+  color: #a6afa0;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.subtle {
+  color: #5b6451;
+}
+.creator-credit {
+  color: #c4cbbb;
+  font-family: Heebo, Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0;
+  line-height: 1.6;
+  text-shadow: 0 1px 5px #000;
+}
+.creator-credit bdi { font-weight: 700; white-space: nowrap; }
+@media (max-width: 600px) {
+  .display-footer .creator-credit { font-size: 10px; }
+  .display-footer .creator-credit bdi { display: block; }
+}
+.footer-actions {
+  display: flex;
+  gap: 10px;
+}
+.icon-button {
+  width: 38px;
+  height: 38px;
+  padding: 8px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 7px;
+}
+.footer-actions .icon-button {
+  background: #151a10a8;
+  border: 1px solid #3a4130;
+}
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: #000b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(9px);
+}
+.dialog {
+  background: var(--panel);
+  border: 1px solid #474f3c;
+  border-radius: 18px;
+  box-shadow: 0 28px 90px #0009;
+  width: 470px;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+  padding: 26px;
+  direction: rtl;
+}
+.dialog.wide {
+  width: 820px;
+}
+.dialog header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.dialog header h2 {
+  font-size: 23px;
+}
+.dialog > p {
+  font-size: 14px;
+  line-height: 1.85;
+  color: #c6cebd;
+  margin-bottom: 20px;
+}
+.dialog-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+.qr-block {
+  padding: 16px;
+  text-align: center;
+}
+.qr-block img {
+  width: 224px;
+  max-width: 100%;
+  border: 8px solid white;
+  border-radius: 10px;
+}
+.qr-placeholder {
+  height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #a5ae99;
+  gap: 20px;
+}
+.pair-countdown {
+  font-size: 12px;
+  color: #b9c4ac;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.pair-link {
+  display: block;
+  direction: ltr;
+  overflow-wrap: anywhere;
+  font-family: monospace;
+  font-size: 12px;
+  margin-top: 12px;
+}
+.dialog details {
+  margin-top: 22px;
+  font-size: 13px;
+  color: #c6cebd;
+}
+.dialog summary {
+  cursor: pointer;
+}
+.devices {
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+  margin-top: 24px;
+}
+.devices h3 {
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+.devices > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  margin: 10px 0;
+}
+.devices button {
+  color: #ffac90;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  gap: 7px;
+  color: #d4dccb;
+  margin-bottom: 20px;
+}
+.field input,
+.field select {
+  width: 100%;
+  background: #080c05;
+  border: 1px solid #444e38;
+  border-radius: 7px;
+  padding: 12px 14px;
+  color: white;
+  font-size: 16px;
+}
+.field input[type="number"] {
+  font-family: Anton, Arial, sans-serif;
+  font-size: 25px;
+  direction: ltr;
+}
+.field small {
+  color: #98a38c;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0 18px;
+}
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  padding: 12px 0 24px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--lime);
+}
+input[type="range"] {
+  accent-color: var(--lime);
+  padding: 0;
+}
+.muted {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #a9b39d;
+  margin: 16px 0;
+}
+.warning,
+.inline-error {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #ffd092;
+  margin: 15px 0;
+}
+.toast {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  background: #232b19;
+  border: 1px solid #717f60;
+  border-radius: 9px;
+  box-shadow: 0 8px 40px #0008;
+  max-width: 90vw;
+  padding: 13px 16px;
+  font-size: 13px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.toast button {
+  display: flex;
+}
+.library-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 26px;
+  gap: 12px;
+}
+.library-heading p {
+  font-size: 14px;
+  color: #b8c3ac;
+}
+.program-list {
+  display: flex;
+  flex-direction: column;
+}
+.program-list article {
+  border-top: 1px solid #323c28;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 0;
+}
+.program-list article.selected .program-kind {
+  color: var(--lime);
+}
+.program-kind {
+  font-family: Anton, Impact, sans-serif;
+  color: #9ba58f;
+  width: 92px;
+  flex-shrink: 0;
+  font-size: 22px;
+  text-align: left;
+}
+.program-description {
+  flex: 1;
+}
+.program-description h3 {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+.program-description p {
+  font-size: 11px;
+  color: #aeb9a2;
+}
+.program-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+}
+.select-program {
+  display: flex;
+  border: 1px solid #4b583b;
+  border-radius: 50%;
+  width: 33px;
+  height: 33px;
+  align-items: center;
+  justify-content: center;
+  color: var(--lime);
+}
+.library-footer {
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+  padding-top: 20px;
+  display: flex;
+  gap: 23px;
+}
+.library-footer button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: #b8c4ab;
+}
+.coach {
+  max-width: 650px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: #0b0e08;
+  padding: 24px 22px 0;
+}
+.coach-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  direction: ltr;
+  border-bottom: 1px solid #303a24;
+  padding-bottom: 20px;
+}
+.brand.small img {
+  width: 42px;
+}
+.brand.small strong {
+  font-size: 30px;
+}
+.brand.small {
+  gap: 8px;
+}
+.coach-header > span {
+  font-size: 12px;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  direction: rtl;
+  color: #b6c1aa;
+}
+.coach-title {
+  text-align: center;
+  margin-top: 28px;
+}
+.coach-title h1 {
+  font-size: 25px;
+  margin-top: 7px;
+}
+.coach-title p {
+  font-size: 11px;
+  color: #a6b598;
+  margin-top: 4px;
+}
+.coach .timer-face {
+  width: 100%;
+  max-width: 420px;
+  margin: 18px auto;
+}
+.coach .phase-label {
+  font-size: 44px;
+}
+.coach .clock {
+  font-size: 105px;
+}
+.coach .round-badge > span {
+  font-size: 17px;
+}
+.coach .round-badge strong {
+  font-size: 32px;
+}
+.coach .set-label {
+  font-size: 11px;
+}
+.coach fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.coach .controls {
+  width: 100%;
+  gap: 8px;
+}
+.coach .controls .action {
+  font-size: 14px;
+  min-height: 82px;
+  border-radius: 12px;
+  gap: 9px;
+}
+.coach .controls .action svg {
+  width: 24px;
+  height: 24px;
+}
+.coach-extra {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.coach-extra .action {
+  flex: 1;
+  font-size: 12px;
+  background: #171e0f;
+  border-color: #313c25;
+}
+.coach-status {
+  font-size: 11px;
+  text-align: center;
+  color: #a8b799;
+  margin-top: 23px;
+}
+.coach-footer {
+  text-align: center;
+  padding: 32px 0 22px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #68755c;
+}
+.coach-pair {
+  padding: 50px 0;
+  max-width: 380px;
+  margin: 0 auto;
+}
+.coach-pair > svg {
+  color: var(--lime);
+  margin-bottom: 16px;
+}
+.coach-pair h1 {
+  font-size: 27px;
+  margin-bottom: 12px;
+}
+.coach-pair p {
+  font-size: 14px;
+  color: #b7c4a8;
+  line-height: 1.8;
+  margin-bottom: 26px;
+}
+.coach-pair .action {
+  width: 100%;
+}
+.studio-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  margin: 12px 0;
+}
+.studio-picker .action {
+  min-height: 88px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+}
+.studio-picker small { font-size: 13px; opacity: .75; }
+.manual-pair { width: 100%; margin-top: 12px; text-align: right; }
+.manual-pair summary { cursor: pointer; color: var(--lime, #b4ff00); padding: 10px 0; }
+@media (max-width: 420px) { .studio-picker { grid-template-columns: 1fr; } }
+.inline-error {
+  display: flex;
+  justify-content: space-between;
+  background: #332716;
+  padding: 12px;
+  border-radius: 8px;
+}
+.coach .scrim {
+  padding: 16px;
+}
+@media (min-aspect-ratio: 18/9) {
+  .timer-stage {
+    width: 73vh;
+    top: 4vh;
+  }
+  .phase-label {
+    font-size: 8vh;
+  }
+  .clock {
+    font-size: 20vh;
+  }
+  .round-badge > span {
+    font-size: 2.5vh;
+  }
+  .round-badge strong {
+    font-size: 4.8vh;
+  }
+  .controls .action {
+    min-height: 11vh;
+    font-size: 2.7vh;
+  }
+  .controls .action svg {
+    width: 3.5vh;
+    height: 3.5vh;
+  }
+  .under-controls {
+    margin-top: 8px;
+  }
+}
+@media (max-width: 1100px) {
+  .workout-info {
+    left: 3.5%;
+    width: 155px;
+  }
+  .workout-info h1 {
+    font-size: 20px;
+  }
+  .workout-facts {
+    gap: 18px;
+  }
+  .workout-facts strong {
+    font-size: 30px;
+  }
+  .brand-block p {
+    font-size: 10px;
+    letter-spacing: 2.5px;
+  }
+  .topbar nav button {
+    font-size: 11px;
+    padding: 9px 5px;
+  }
+  .timer-stage {
+    top: 17%;
+    width: 57vw;
+  }
+  .controls .action {
+    min-height: 76px;
+  }
+  .under-controls {
+    font-size: 11px;
+  }
+  .timer-inner .phase-label {
+    font-size: 6vw;
+  }
+  .timer-inner .clock {
+    font-size: 14.5vw;
+  }
+  .round-badge {
+    width: 24%;
+  }
+  .set-label {
+    font-size: 10px;
+  }
+  .coach .timer-inner .phase-label {
+    font-size: 44px;
+  }
+  .coach .timer-inner .clock {
+    font-size: 105px;
+  }
+}
+@media (max-width: 740px) {
+  .display {
+    min-height: 850px;
+    height: 100svh;
+    overflow: auto;
+  }
+  .topbar {
+    top: 24px;
+    left: 20px;
+    right: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .brand strong {
+    font-size: 36px;
+  }
+  .brand img {
+    width: 48px;
+  }
+  .brand-block p {
+    display: none;
+  }
+  .topbar nav {
+    margin-left: auto;
+  }
+  .topbar nav button {
+    font-size: 0;
+    gap: 0;
+    padding: 8px;
+  }
+  .topbar nav button svg {
+    width: 20px;
+    height: 20px;
+  }
+  .topbar nav .status-dot {
+    margin-right: 5px;
+  }
+  .photo {
+    background-position: 85% center;
+    opacity: 0.45;
+  }
+  .photo-shade {
+    background: linear-gradient(0deg, #070a05, transparent 70%);
+  }
+  .workout-info {
+    top: 115px;
+    left: 20px;
+    right: 20px;
+    bottom: auto;
+    width: auto;
+    text-align: center;
+  }
+  .workout-info h1 {
+    font-size: 23px;
+    margin: 5px 0 10px;
+  }
+  .workout-facts,
+  .workout-divider,
+  .workout-info p,
+  .workout-info .text-button {
+    display: none;
+  }
+  .timer-stage {
+    top: 200px;
+    width: 88vw;
+    max-width: 480px;
+  }
+  .timer-inner .phase-label {
+    font-size: 11vw;
+  }
+  .timer-inner .clock {
+    font-size: 23vw;
+  }
+  .round-badge > span {
+    font-size: 4vw;
+  }
+  .round-badge strong {
+    font-size: 8vw;
+  }
+  .set-label {
+    font-size: 12px;
+  }
+  .controls {
+    width: 100%;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .controls .action {
+    min-height: 85px;
+    font-size: 15px;
+    border-radius: 12px;
+    padding: 10px 6px;
+  }
+  .controls .action svg {
+    width: 26px;
+    height: 26px;
+  }
+  .under-controls {
+    font-size: 12px;
+    margin-top: 20px;
+  }
+  .display-footer {
+    bottom: 18px;
+    left: 22px;
+    right: 22px;
+  }
+  .footer-left {
+    font-size: 8px;
+    letter-spacing: 1px;
+    gap: 8px;
+  }
+  .scrim {
+    padding: 12px;
+  }
+  .dialog {
+    padding: 20px;
+    max-height: 93vh;
+    border-radius: 14px;
+  }
+  .dialog header h2 {
+    font-size: 20px;
+  }
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 12px;
+  }
+  .library-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  .program-list article {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 17px 0;
+  }
+  .program-kind {
+    width: 75px;
+    font-size: 18px;
+  }
+  .program-description h3 {
+    font-size: 16px;
+  }
+  .program-description p {
+    font-size: 10px;
+  }
+  .program-actions {
+    margin-right: auto;
+  }
+  .coach .timer-face {
+    max-width: 380px;
+  }
+  .coach .timer-inner .clock {
+    font-size: min(25vw, 105px);
+  }
+  .coach .timer-inner .phase-label {
+    font-size: min(11vw, 44px);
+  }
+}
+/* Preserve geometry on older embedded TV engines without aspect-ratio/clamp. */
+.timer-face {
+  aspect-ratio: auto;
+}
+.timer-face::before {
+  content: "";
+  display: block;
+  padding-top: 100%;
+}
+.ring {
+  position: absolute;
+  inset: 0;
+}
+.round-badge {
+  aspect-ratio: auto;
+  height: 23%;
+  flex-shrink: 0;
+}
+@supports not (font-size: clamp(10px, 1vw, 20px)) {
+  .brand img {
+    width: 5.5vw;
+  }
+  .brand strong {
+    font-size: 4.3vw;
+  }
+  .timer-stage {
+    width: 51vw;
+    max-width: 78vh;
+  }
+  .phase-label {
+    font-size: 5.5vw;
+  }
+  .clock {
+    font-size: 12.9vw;
+  }
+  .round-badge > span {
+    font-size: 1.65vw;
+  }
+  .round-badge strong {
+    font-size: 3.1vw;
+  }
+  .controls .action {
+    font-size: 1.75vw;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+/* Hall mode prioritizes distance legibility; the original branded view stays available. */
+.hall-progress { display: none; }
+.round-notice { color: var(--phase); font-size: 18px; font-weight: 900; }
+.hall-toggle { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #616c52; border-radius: 7px; background: #10150d; font-weight: 700; }
+.sound-preview { display: flex; flex-wrap: wrap; gap: 10px; }
+.phone-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px; }
+.phone-actions .action { min-height: 56px; padding: 10px; text-decoration: none; font-size: 14px; }
+.phone-actions .action svg { width: 21px; }
+.qr-scanner > p { line-height: 1.8; margin-bottom: 16px; }
+.scanner-video { display: block; width: 100%; max-height: 320px; object-fit: cover; border: 2px solid var(--lime); border-radius: 12px; margin: 16px 0; }
+.scanner-video.inactive { height: 0; border: 0; margin: 0; }
+.scanner-options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.scanner-options label { position: relative; overflow: hidden; cursor: pointer; flex: 1; }
+.scanner-options input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.scanner-options label:focus-within { outline: 3px solid var(--lime); outline-offset: 3px; }
+.display.hall { min-height: 0; height: 100vh; overflow: hidden; background: #030503; }
+.hall .photo { opacity: .12; }
+.hall .photo-shade { background: #0008; }
+.hall .topbar { top: 2vh; left: 3vw; right: 3vw; align-items: center; }
+.hall .brand img { width: 4.5vh; }
+.hall .brand strong { font-size: 4vh; }
+.hall .brand-block p, .hall .workout-info { display: none; }
+.hall .topbar nav button { font-size: 1.8vh; }
+.hall .timer-stage { top: 11vh; bottom: 9vh; width: 92vw; max-width: none; }
+.hall .timer-face { flex: 1; min-height: 0; width: 100%; background: none; border-radius: 0; filter: none; }
+.hall .timer-face::before { display: none; }
+.hall .ring { display: none; }
+.hall .timer-inner { padding: 0 0 2vh; justify-content: center; }
+.hall .timer-inner .phase-label { font-size: 7vh; margin: 0; line-height: 1.1; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hall .timer-inner .clock { font-size: min(31vw, 43vh); line-height: 1.12; letter-spacing: 0; text-shadow: none; }
+.hall .timer-inner .long-clock { font-size: min(24vw, 36vh); }
+.hall .round-badge { width: auto; height: auto; border: 0; border-radius: 0; flex-direction: row; gap: 1.5vw; margin: 0; }
+.hall .round-badge > span { font-size: 3.2vh; }
+.hall .round-badge strong { font-size: 4.7vh; }
+.hall .round-badge i { color: #b9c3b1; }
+.hall .set-label { font-size: 2.5vh; color: #e3e8de; margin-top: .4vh; }
+.hall .round-notice { position: absolute; top: 1vh; right: 0; font-size: 3vh; border: 1px solid var(--phase); padding: .7vh 1.2vw; }
+.hall .hall-progress { display: block; position: absolute; bottom: 0; width: 100%; height: 1vh; background: #30392b; border-radius: 2px; overflow: hidden; }
+.hall-progress > div { background: var(--phase); height: 100%; }
+.hall .closing .clock { color: var(--phase); }
+.hall .controls { width: 70%; margin-top: 2vh; gap: 1vw; }
+.hall .controls .action { min-height: 7vh; padding: 1vh; font-size: 2.4vh; flex-direction: row; border-radius: 9px; background: #0d1408; box-shadow: none; }
+.hall .controls .action svg { width: 2.7vh; height: 2.7vh; }
+.hall .under-controls { display: none; }
+.hall .display-footer { bottom: 1.5vh; left: 3vw; right: 3vw; }
+@supports not (font-size: min(31vw, 43vh)) {
+  .hall .timer-inner .clock { font-size: 31vw; }
+  .hall .timer-inner .long-clock { font-size: 24vw; }
+  @media (min-aspect-ratio: 7/5) { .hall .timer-inner .clock { font-size: 43vh; } .hall .timer-inner .long-clock { font-size: 36vh; } }
+}
+@media (max-width: 740px) and (orientation: portrait) {
+  .hall .topbar { top: 20px; gap: 8px; flex-wrap: nowrap; }
+  .hall .topbar nav button { font-size: 0; }
+  .hall .brand strong { font-size: 30px; }
+  .hall .brand img { width: 36px; }
+  .hall .timer-stage { top: 16vh; bottom: 13vh; width: 94vw; }
+  .hall .timer-inner .phase-label { font-size: 11vw; }
+  .hall .timer-inner .clock { font-size: 31vw; }
+  .hall .timer-inner .long-clock { font-size: 24vw; }
+  .hall .round-notice { top: 0; left: 0; right: 0; text-align: center; font-size: 5vw; }
+  .hall .controls { width: 100%; gap: 8px; }
+  .hall .controls .action { flex-direction: column; font-size: 15px; min-height: 76px; }
+  .hall .footer-left { display: none; }
+  .hall .footer-actions { margin-left: auto; }
+}

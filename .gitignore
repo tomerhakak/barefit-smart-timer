@@ -1,0 +1,16 @@
+node_modules/
+dist/
+packages/
+.runtime/
+native/node_modules/
+native/.expo/
+native/android/
+native/android-phone-build/
+native/android-tv-build/
+native/ios/
+native/dist/
+native/dist-ios/
+*.log
+
+native/dist-tv/
+native/android-phone-build-residue/

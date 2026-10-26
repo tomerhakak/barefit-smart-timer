@@ -1,0 +1,12 @@
+Retrieved 25 October 2026 from the official BareFit website: https://barefit.co.il/
+
+Official icon (unchanged local copy):
+https://barefit.co.il/wp-content/uploads/2020/07/barefit_All-Logos-08-300x300.webp
+public/assets/barefit-official-icon.webp
+Used in the web display/coach header, browser favicon and web manifest.
+
+Official full logo (retained as a reference, not substituted for the header text):
+https://barefit.co.il/wp-content/uploads/2020/07/barefit_All-Logos-07-scaled.webp
+public/assets/barefit-official-logo.webp
+
+No generative editing, redrawing, recoloring or distortion. Android launcher artwork is outside this header-icon change and has not been rebuilt in this pass.

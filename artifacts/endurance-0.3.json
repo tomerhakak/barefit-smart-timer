@@ -1,0 +1,27 @@
+{
+  "scope": "Accelerated shared timer and cue policy; not a hardware endurance test",
+  "passed": true,
+  "studios": [
+    {
+      "simulatedHours": 72.00001083333333,
+      "ticks": 2230164,
+      "cues": 56636,
+      "completedWorkouts": 21,
+      "pauseResumeCycles": 37,
+      "recoveredSnapshots": 17,
+      "missedCallbackGaps": 281
+    },
+    {
+      "simulatedHours": 72.00001083333333,
+      "ticks": 2230164,
+      "cues": 55819,
+      "completedWorkouts": 25,
+      "pauseResumeCycles": 37,
+      "recoveredSnapshots": 17,
+      "missedCallbackGaps": 281
+    }
+  ],
+  "retainedHeapGrowthBytes": 84216,
+  "heapAfterGcBytes": 4639808,
+  "actualRuntimeSeconds": 0.384559
+}
