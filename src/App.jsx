@@ -267,7 +267,7 @@ function Display() {
     return ['1','2'].includes(requested)?requested:read('studio-id','1');
   });
   const t = useTimer(base,studioId);
-  const [panel, setPanel] = useState("library"),
+  const [panel, setPanel] = useState("builder"),
     [fullscreen, setFullscreen] = useState(false),
     [clean, setClean] = [t.clean,t.setClean],
     [hall, setHall] = [t.hall,t.setHall],
