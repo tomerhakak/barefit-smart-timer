@@ -24,6 +24,7 @@ import {
   Monitor,
   BookOpen,
   ChevronLeft,
+  Menu,
 } from "lucide-react";
 import QRCode from "qrcode";
 import QrScanner from "./QrScanner";
@@ -138,6 +139,28 @@ function Overlay({ title, onClose, children, wide = false }) {
     </div>
   );
 }
+function SessionMenu({ finished = false, onClose, onBuilder, onLibrary, onRestart }) {
+  return (
+    <Overlay title={finished ? "האימון הסתיים" : "תפריט אימון"} onClose={onClose}>
+      <div className="session-menu">
+        {finished ? (
+          <>
+            <div className="session-complete-mark"><Check size={30} /></div>
+            <h3>כל הכבוד</h3>
+            <p>הסשן הסתיים. בחרו מה לעשות עכשיו.</p>
+          </>
+        ) : (
+          <p>בחרו פעולה כדי להתחיל או להכין את האימון הבא.</p>
+        )}
+        <div className="session-menu-actions">
+          {finished && <Button primary icon={RotateCcw} onClick={onRestart}>התחלה מחדש</Button>}
+          <Button primary={!finished} icon={Plus} onClick={onBuilder}>בניית אימון</Button>
+          <Button icon={BookOpen} onClick={onLibrary}>ספריית אימונים</Button>
+        </div>
+      </div>
+    </Overlay>
+  );
+}
 function TimerFace({ view, compact = false }) {
   const shown =
     view.status === "ready" ? view.workout.work * 1000 : view.remaining;
@@ -234,6 +257,7 @@ function Display() {
     [hall, setHall] = [t.hall,t.setHall],
     [qr, setQr] = useState("");
   const [now, setNow] = useState(Date.now());
+  const lastStatus = useRef(t.view.status);
   useEffect(() => { if (t.lastPaired) setPanel(null); }, [t.lastPaired]);
   useEffect(()=>{const onSetting=e=>{if(e.detail.key==='hall')setHall(e.detail.value);if(e.detail.key==='clean')setClean(e.detail.value);};window.addEventListener('barefit-setting',onSetting);return()=>window.removeEventListener('barefit-setting',onSetting);},[]);
   const [pairOrigin,setPairOrigin] = useState(base);
@@ -258,6 +282,10 @@ function Display() {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
+  useEffect(() => {
+    if (t.view.status === "finished" && lastStatus.current !== "finished") setPanel("session-menu");
+    lastStatus.current = t.view.status;
+  }, [t.view.status]);
   const pairUrl = t.code
     ? pairLink(pairOrigin,t.code,studioId)
     : "";
@@ -340,6 +368,9 @@ function Display() {
           </p>
         </div>
         <nav>
+          <button onClick={() => setPanel("menu")}>
+            <Menu size={18} /> תפריט
+          </button>
           <button onClick={() => setPanel("builder")}>
             <Plus size={18} /> בניית אימון
           </button>
@@ -475,6 +506,23 @@ function Display() {
             if (t.execute("LOAD_WORKOUT", workout)) setPanel(null);
             else setPanel("library");
           }}
+        />
+      )}
+      {panel === "menu" && (
+        <SessionMenu
+          onClose={() => setPanel(null)}
+          onBuilder={() => setPanel("builder")}
+          onLibrary={() => setPanel("library")}
+          onRestart={() => { t.execute("START"); setPanel(null); }}
+        />
+      )}
+      {panel === "session-menu" && (
+        <SessionMenu
+          finished
+          onClose={() => setPanel(null)}
+          onBuilder={() => setPanel("builder")}
+          onLibrary={() => setPanel("library")}
+          onRestart={() => { t.execute("START"); setPanel(null); }}
         />
       )}
       {panel === "pair" && (
@@ -882,6 +930,35 @@ function WorkoutBuilder({ onSave, onCancel }) {
   const [w, setW] = useState(null);
   const [err, setErr] = useState("");
   const selected = WORKOUT_MODES.find((item) => item.id === mode);
+  const durationParts = (value) => {
+    const total = Math.max(0, Number(value) || 0);
+    return { minutes: Math.floor(total / 60), seconds: total % 60 };
+  };
+  const durationText = (value) => {
+    const parts = durationParts(value);
+    return `${String(parts.minutes).padStart(2, "0")}:${String(parts.seconds).padStart(2, "0")}`;
+  };
+  const setDurationPart = (key, part, value) => {
+    const current = durationParts(w[key]);
+    const next = part === "minutes"
+      ? Number(value || 0) * 60 + current.seconds
+      : current.minutes * 60 + Math.min(59, Number(value || 0));
+    update(key, next);
+  };
+  const durationField = (key, label, maxMinutes = 120) => {
+    const parts = durationParts(w[key]);
+    return (
+      <label className="field duration-field" key={key}>
+        {label}
+        <small>דקות : שניות</small>
+        <span className="duration-inputs" dir="ltr">
+          <input type="number" min="0" max={maxMinutes} step="1" value={parts.minutes} aria-label={`${label} דקות`} onChange={(e) => setDurationPart(key, "minutes", e.target.value)} />
+          <b>:</b>
+          <input type="number" min="0" max="59" step="1" value={String(parts.seconds).padStart(2, "0")} aria-label={`${label} שניות`} onChange={(e) => setDurationPart(key, "seconds", e.target.value)} />
+        </span>
+      </label>
+    );
+  };
   const chooseMode = (item) => {
     setMode(item.id);
     setW({ ...item.defaults, id: commandId(), kind: item.id });
@@ -921,28 +998,32 @@ function WorkoutBuilder({ onSave, onCancel }) {
         <form className="builder-form" onSubmit={save}>
           <div className="builder-selected" style={{ "--mode-color": selected.color }}>
             <strong dir="ltr">{selected.label}</strong>
-            <span>{selected.description}</span>
+            <span>
+              {mode === "EMOM"
+                ? `Every ${durationText(w.work)} for ${w.rounds || 0} minutes`
+                : mode === "AMRAP"
+                  ? `As many rounds as possible · ${durationText(w.work)}`
+                  : mode === "FOR TIME"
+                    ? `Finish within ${durationText(w.work)}`
+                    : selected.description}
+            </span>
           </div>
           <label className="field">שם האימון<input value={w.name} maxLength={80} required onChange={(e) => update("name", e.target.value)} /></label>
           <div className="form-grid builder-fields">
-            <label className="field">
-              {mode === "EMOM" ? "כל כמה שניות" : mode === "AMRAP" || mode === "FOR TIME" ? "זמן האימון" : "זמן עבודה"}
-              <small>בשניות</small>
-              <input type="number" min="1" max="7200" step="1" value={w.work} onChange={(e) => update("work", e.target.value)} />
-            </label>
+            {durationField("work", mode === "EMOM" ? "כל כמה זמן" : mode === "AMRAP" || mode === "FOR TIME" ? "זמן האימון" : "זמן עבודה")}
             {!["AMRAP", "FOR TIME", "EMOM"].includes(mode) && (
-              <label className="field">זמן מנוחה<small>בשניות</small><input type="number" min="0" max="3600" step="1" value={w.rest} onChange={(e) => update("rest", e.target.value)} /></label>
+              durationField("rest", "זמן מנוחה", 60)
             )}
             <label className="field">{mode === "EMOM" ? "מספר דקות" : "מספר סבבים"}<input type="number" min="1" max="100" step="1" value={w.rounds} onChange={(e) => update("rounds", e.target.value)} /></label>
             {mode === "MIX" && <label className="field">מספר סטים<input type="number" min="1" max="20" step="1" value={w.sets} onChange={(e) => update("sets", e.target.value)} /></label>}
-            {mode === "MIX" && <label className="field">מנוחה בין סטים<small>בשניות</small><input type="number" min="0" max="3600" step="1" value={w.between} onChange={(e) => update("between", e.target.value)} /></label>}
-            <label className="field">זמן הכנה<small>בשניות</small><input type="number" min="0" max="300" step="1" value={w.prepare} onChange={(e) => update("prepare", e.target.value)} /></label>
+            {mode === "MIX" && durationField("between", "מנוחה בין סטים", 60)}
+            {durationField("prepare", "זמן הכנה", 5)}
           </div>
           <p className="builder-summary">
-            {mode === "AMRAP" && `סבבים חופשיים במשך ${w.work || 0} שניות`}
-            {mode === "FOR TIME" && `מסיימים בתוך ${w.work || 0} שניות`}
-            {mode === "EMOM" && `משימה חדשה כל ${w.work || 0} שניות, ${w.rounds || 0} פעמים`}
-            {mode === "TABATA" && `${w.work || 0} שניות עבודה · ${w.rest || 0} שניות מנוחה · ${w.rounds || 0} סבבים`}
+            {mode === "AMRAP" && `סבבים חופשיים במשך ${durationText(w.work)}`}
+            {mode === "FOR TIME" && `מסיימים בתוך ${durationText(w.work)}`}
+            {mode === "EMOM" && `משימה חדשה כל ${durationText(w.work)}, ${w.rounds || 0} פעמים`}
+            {mode === "TABATA" && `${durationText(w.work)} עבודה · ${durationText(w.rest)} מנוחה · ${w.rounds || 0} סבבים`}
             {mode === "MIX" && `${w.rounds || 0} סבבים × ${w.sets || 0} סטים`}
           </p>
           {err && <p className="warning">{err}</p>}
@@ -989,6 +1070,7 @@ function Coach() {
   const conn = useRef(null);
   const sequence = useRef(read("sequence:" + base, 0));
   const [pending, setPending] = useState(null);
+  const lastCoachStatus = useRef("ready");
   const hash = new URLSearchParams(location.hash.slice(1));
   const room = hash.get("room") || manualRoom,
     code = hash.get("code") || manualCode;
@@ -1078,6 +1160,10 @@ function Coach() {
     }, 6000);
     return () => clearTimeout(id);
   }, [pending]);
+  useEffect(() => {
+    if (view?.status === "finished" && lastCoachStatus.current !== "finished") setPanel("session-menu");
+    if (view?.status) lastCoachStatus.current = view.status;
+  }, [view?.status]);
   const execute = (type, payload) => {
     if (
       status !== "connected" ||
@@ -1266,6 +1352,7 @@ function Coach() {
         </Overlay>
       )}
       {panel==='remote-settings' && <RemoteSettings settings={phoneSettings} execute={execute} onClose={()=>setPanel(null)}/>}
+      {panel === 'session-menu' && <SessionMenu finished onClose={()=>setPanel(null)} onBuilder={()=>setPanel('builder')} onLibrary={()=>setPanel('library')} onRestart={()=>{execute('START');setPanel(null);}} />}
       {panel === 'scan' && <Overlay title="סריקת קוד מהמסך" onClose={()=>setPanel(null)}><QrScanner onScan={connectPair}/></Overlay>}
       {panel === 'builder' && <WorkoutBuilder onCancel={()=>setPanel(null)} onSave={(workout)=>{
         const next=[...programs.filter((item)=>item.id!==workout.id),workout];

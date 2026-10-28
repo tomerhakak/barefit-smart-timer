@@ -506,6 +506,22 @@ input {
   justify-content: flex-end;
   margin-top: 24px;
 }
+.session-menu { text-align: center; padding: 8px 0 2px; }
+.session-menu > p { color: #c6cebd; line-height: 1.8; margin: 0 0 22px; }
+.session-menu h3 { font-size: 26px; margin: 8px 0 3px; }
+.session-complete-mark {
+  width: 62px;
+  height: 62px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #0b1006;
+  background: var(--lime);
+  border-radius: 50%;
+  box-shadow: 0 0 28px #b4ff0050;
+}
+.session-menu-actions { display: grid; gap: 10px; margin-top: 18px; }
+.session-menu-actions .action { width: 100%; min-height: 54px; }
 .qr-block {
   padding: 16px;
   text-align: center;
@@ -727,6 +743,15 @@ input[type="range"] {
   font-size: 13px;
 }
 .builder-fields { margin-bottom: 4px; }
+.duration-field { min-width: 0; }
+.duration-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+}
+.duration-inputs input { min-width: 0; }
+.duration-inputs b { color: var(--lime); font-size: 21px; }
 .program-list {
   display: flex;
   flex-direction: column;
