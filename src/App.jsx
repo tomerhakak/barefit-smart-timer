@@ -23,7 +23,6 @@ import {
   RotateCcw,
   Monitor,
   BookOpen,
-  Menu,
 } from "lucide-react";
 import QRCode from "qrcode";
 import QrScanner from "./QrScanner";
@@ -155,28 +154,6 @@ function Overlay({ title, onClose, children, wide = false }) {
     </div>
   );
 }
-function SessionMenu({ finished = false, onClose, onBuilder, onLibrary, onRestart }) {
-  return (
-    <Overlay title={finished ? "האימון הסתיים" : "תפריט אימון"} onClose={onClose}>
-      <div className="session-menu">
-        {finished ? (
-          <>
-            <div className="session-complete-mark"><Check size={30} /></div>
-            <h3>כל הכבוד</h3>
-            <p>הסשן הסתיים. בחרו מה לעשות עכשיו.</p>
-          </>
-        ) : (
-          <p>בחרו פעולה כדי להתחיל או להכין את האימון הבא.</p>
-        )}
-        <div className="session-menu-actions">
-          {finished && <Button primary icon={RotateCcw} onClick={onRestart}>התחלה מחדש</Button>}
-          <Button primary={!finished} icon={Plus} onClick={onBuilder}>בניית אימון</Button>
-          <Button icon={BookOpen} onClick={onLibrary}>ספריית אימונים</Button>
-        </div>
-      </div>
-    </Overlay>
-  );
-}
 function TimerFace({ view, compact = false }) {
   const shown =
     view.status === "ready" ? view.workout.work * 1000 : view.remaining;
@@ -299,7 +276,7 @@ function Display() {
     return () => clearInterval(id);
   }, []);
   useEffect(() => {
-    if (t.view.status === "finished" && lastStatus.current !== "finished") setPanel("session-menu");
+    if (t.view.status === "finished" && lastStatus.current !== "finished") setPanel("builder");
     lastStatus.current = t.view.status;
   }, [t.view.status]);
   const pairUrl = t.code
@@ -384,14 +361,8 @@ function Display() {
           </p>
         </div>
         <nav>
-          <button onClick={() => setPanel("menu")}>
-            <Menu size={18} /> תפריט
-          </button>
           <button onClick={() => setPanel("builder")}>
             <Plus size={18} /> בניית אימון
-          </button>
-          <button onClick={() => setPanel("library")}>
-            <BookOpen size={18} /> ספריית אימונים
           </button>
           <button
             onClick={() => {
@@ -474,7 +445,7 @@ function Display() {
               icon={Square}
               onClick={() => {
                 t.execute("STOP");
-                setPanel(null);
+                setPanel("builder");
               }}
             >
               עצירת אימון
@@ -501,23 +472,6 @@ function Display() {
             if (t.execute("LOAD_WORKOUT", workout)) setPanel(null);
             else setPanel("library");
           }}
-        />
-      )}
-      {panel === "menu" && (
-        <SessionMenu
-          onClose={() => setPanel(null)}
-          onBuilder={() => setPanel("builder")}
-          onLibrary={() => setPanel("library")}
-          onRestart={() => { t.execute("START"); setPanel(null); }}
-        />
-      )}
-      {panel === "session-menu" && (
-        <SessionMenu
-          finished
-          onClose={() => setPanel(null)}
-          onBuilder={() => setPanel("builder")}
-          onLibrary={() => setPanel("library")}
-          onRestart={() => { t.execute("START"); setPanel(null); }}
         />
       )}
       {panel === "pair" && (
@@ -1044,7 +998,6 @@ function WorkoutBuilder({ onSave, onCancel }) {
                     : selected.description}
             </span>
           </div>
-          <label className="field">שם האימון <small>אפשר להשאיר את השם המוצע</small><input value={w.name} maxLength={80} required onChange={(e) => update("name", e.target.value)} /></label>
           <div className="form-grid builder-fields">
             {durationField("work", mode === "EMOM" ? "כל כמה זמן מתחיל תרגיל חדש?" : mode === "AMRAP" ? "כמה זמן יש לאימון?" : mode === "FOR TIME" ? "מהו הזמן המקסימלי?" : "כמה זמן עובדים?")}
             {!["AMRAP", "FOR TIME", "EMOM"].includes(mode) && (
@@ -1196,7 +1149,7 @@ function Coach() {
     return () => clearTimeout(id);
   }, [pending]);
   useEffect(() => {
-    if (view?.status === "finished" && lastCoachStatus.current !== "finished") setPanel("session-menu");
+    if (view?.status === "finished" && lastCoachStatus.current !== "finished") setPanel("builder");
     if (view?.status) lastCoachStatus.current = view.status;
   }, [view?.status]);
   const execute = (type, payload) => {
@@ -1379,7 +1332,7 @@ function Coach() {
             primary
             onClick={() => {
               execute("STOP");
-              setPanel(null);
+              setPanel("builder");
             }}
           >
             עצירת אימון
@@ -1387,7 +1340,6 @@ function Coach() {
         </Overlay>
       )}
       {panel==='remote-settings' && <RemoteSettings settings={phoneSettings} execute={execute} onClose={()=>setPanel(null)}/>}
-      {panel === 'session-menu' && <SessionMenu finished onClose={()=>setPanel(null)} onBuilder={()=>setPanel('builder')} onLibrary={()=>setPanel('library')} onRestart={()=>{execute('START');setPanel(null);}} />}
       {panel === 'scan' && <Overlay title="סריקת קוד מהמסך" onClose={()=>setPanel(null)}><QrScanner onScan={connectPair}/></Overlay>}
       {panel === 'builder' && <WorkoutBuilder onCancel={()=>setPanel(null)} onSave={(workout)=>{
         const next=[...programs.filter((item)=>item.id!==workout.id),workout];
