@@ -23,7 +23,6 @@ import {
   RotateCcw,
   Monitor,
   BookOpen,
-  ChevronLeft,
   Menu,
 } from "lucide-react";
 import QRCode from "qrcode";
@@ -268,7 +267,7 @@ function Display() {
     return ['1','2'].includes(requested)?requested:read('studio-id','1');
   });
   const t = useTimer(base,studioId);
-  const [panel, setPanel] = useState(null),
+  const [panel, setPanel] = useState("library"),
     [fullscreen, setFullscreen] = useState(false),
     [clean, setClean] = [t.clean,t.setClean],
     [hall, setHall] = [t.hall,t.setHall],
@@ -416,27 +415,6 @@ function Display() {
           </button>
         </nav>
       </header>
-      <aside className="workout-info">
-        <span className="eyebrow">סטודיו {studioId} · האימון שלכם</span>
-        <h1>{t.view.workout.name}</h1>
-        <div className="workout-facts">
-          <span>
-            <strong>{t.view.workout.work}</strong>שניות עבודה
-          </span>
-          <span>
-            <strong>{t.view.workout.rest}</strong>שניות מנוחה
-          </span>
-        </div>
-        <div className="workout-divider" />
-        <p>
-          <span>{t.view.workout.rounds} סבבים</span>
-          <span>×</span>
-          <span>{t.view.workout.sets} סטים</span>
-        </p>
-        <button className="text-button" onClick={() => setPanel("library")}>
-          החלפת אימון <ChevronLeft size={16} />
-        </button>
-      </aside>
       <section className="timer-stage" aria-label="שעון אימון">
         <TimerFace view={t.view} />
         <Controls
@@ -785,7 +763,7 @@ function Library({ programs, setPrograms, active, onClose, onLoad, create = fals
   };
   return (
     <Overlay
-      title={editing ? "עריכת תוכנית" : "ספריית האימונים"}
+      title={editing ? "עריכת תוכנית" : "בחירת אימון"}
       wide
       onClose={onClose}
     >
@@ -801,7 +779,7 @@ function Library({ programs, setPrograms, active, onClose, onLoad, create = fals
       ) : (
         <>
           <div className="library-heading">
-            <p>בחרו את הקצב של האימון הבא.</p>
+            <p>בחרו אימון כדי להתחיל, או צרו אימון חדש.</p>
             <Button
               icon={Plus}
               onClick={() =>

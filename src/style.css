@@ -306,9 +306,6 @@ input {
   );
   filter: drop-shadow(0 0 17px #b4ff0012);
 }
-@media (min-width: 1100px) and (min-aspect-ratio: 7/5) {
-  .display:not(.hall) .timer-stage { left: 43%; }
-}
 .ring {
   width: 100%;
   height: 100%;
