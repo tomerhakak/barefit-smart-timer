@@ -49,19 +49,36 @@ const palette = {
   finished: "#b4ff00",
 };
 const WORKOUT_MODES = [
-  { id: "AMRAP", label: "AMRAP", description: "כמה שיותר סבבים בזמן מוגדר", color: "#f39b1a", defaults: { name: "AMRAP", work: 360, rest: 0, rounds: 1, sets: 1, between: 0, prepare: 10 } },
-  { id: "FOR TIME", label: "FOR TIME", description: "לסיים את האימון בזמן הקצר ביותר", color: "#5d72ff", defaults: { name: "For Time", work: 600, rest: 0, rounds: 1, sets: 1, between: 0, prepare: 10 } },
-  { id: "EMOM", label: "EMOM", description: "כל דקה מתחילים משימה חדשה", color: "#a900e8", defaults: { name: "EMOM", work: 60, rest: 0, rounds: 6, sets: 1, between: 0, prepare: 10 } },
-  { id: "TABATA", label: "TABATA", description: "עבודה קצרה, מנוחה קצרה, בקצב קבוע", color: "#20c29a", defaults: { name: "טבטה", work: 20, rest: 10, rounds: 8, sets: 1, between: 0, prepare: 10 } },
-  { id: "MIX", label: "MIX", description: "בונים אימון סבבים וסטים משלכם", color: "#555a5f", defaults: { name: "אימון מעורב", work: 45, rest: 15, rounds: 8, sets: 3, between: 90, prepare: 10 } },
+  { id: "AMRAP", label: "כמה שיותר סבבים", shortLabel: "AMRAP", description: "עובדים ברצף עד שהזמן נגמר", color: "#f39b1a", defaults: { name: "כמה שיותר סבבים", work: 360, rest: 0, rounds: 1, sets: 1, between: 0, prepare: 10 } },
+  { id: "FOR TIME", label: "סיום מהיר", shortLabel: "FOR TIME", description: "מסיימים את המשימה לפני הזמן", color: "#5d72ff", defaults: { name: "סיום מהיר", work: 600, rest: 0, rounds: 1, sets: 1, between: 0, prepare: 10 } },
+  { id: "EMOM", label: "מתחילים מחדש כל פעם", shortLabel: "EMOM", description: "תרגיל חדש מתחיל במרווח קבוע", color: "#a900e8", defaults: { name: "מתחילים מחדש כל פעם", work: 60, rest: 0, rounds: 6, sets: 1, between: 0, prepare: 10 } },
+  { id: "TABATA", label: "אימון טבטה", shortLabel: "TABATA", description: "עבודה קצרה ומנוחה קצרה", color: "#20c29a", defaults: { name: "אימון טבטה", work: 20, rest: 10, rounds: 8, sets: 1, between: 0, prepare: 10 } },
+  { id: "MIX", label: "אימון מותאם אישית", shortLabel: "MIX", description: "אתם בוחרים עבודה, מנוחה וסבבים", color: "#555a5f", defaults: { name: "אימון מותאם אישית", work: 45, rest: 15, rounds: 8, sets: 3, between: 90, prepare: 10 } },
 ];
 export default function App() {
+  const [booting, setBooting] = useState(true);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setBooting(false), 900);
+    return () => window.clearTimeout(timer);
+  }, []);
+  if (booting) return <BootScreen />;
   const params = new URLSearchParams(location.search);
   return params.get("mode") === "coach" || (!params.has("mode") && window.matchMedia("(max-width: 740px)").matches) ||
     location.pathname.endsWith("/coach") ? (
     <Coach />
   ) : (
     <Display />
+  );
+}
+function BootScreen() {
+  return (
+    <main className="boot-screen" role="status" aria-label="BareFit נטען">
+      <div className="boot-glow" />
+      <img className="boot-logo" src="./assets/barefit-official-logo.webp" alt="Barefit" />
+      <div className="boot-loader" aria-hidden="true"><span /></div>
+      <p>מכינים את האימון</p>
+      <small>Tomer AI Studio</small>
+    </main>
   );
 }
 function Brand({ small = false }) {
@@ -925,6 +942,41 @@ function WorkoutForm({ workout, onSave, onCancel }) {
     </form>
   );
 }
+function DurationPicker({ label, hint, value, max, onChange }) {
+  const choices = [20, 30, 45, 60, 120, 300, 600].filter((item) => item <= max);
+  const change = (amount) => onChange(Math.max(1, Math.min(max, value + amount)));
+  const display = (seconds) => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+  return (
+    <div className="quick-picker">
+      <div className="quick-picker-copy"><strong>{label}</strong><small>{hint}</small></div>
+      <div className="stepper" dir="ltr">
+        <button type="button" onClick={() => change(-5)} aria-label={`קיצור ${label}`}>−</button>
+        <output>{display(value)}</output>
+        <button type="button" onClick={() => change(5)} aria-label={`הארכת ${label}`}>+</button>
+      </div>
+      <div className="quick-choices" dir="ltr">
+        {choices.map((item) => <button type="button" key={item} className={item === value ? "selected" : ""} onClick={() => onChange(item)}>{display(item)}</button>)}
+      </div>
+    </div>
+  );
+}
+function CountPicker({ label, hint, value, onChange }) {
+  const choices = [1, 2, 3, 4, 6, 8, 10, 12];
+  const change = (amount) => onChange(Math.max(1, Math.min(100, value + amount)));
+  return (
+    <div className="quick-picker">
+      <div className="quick-picker-copy"><strong>{label}</strong><small>{hint}</small></div>
+      <div className="stepper" dir="ltr">
+        <button type="button" onClick={() => change(-1)} aria-label={`הפחתת ${label}`}>−</button>
+        <output>{value}</output>
+        <button type="button" onClick={() => change(1)} aria-label={`הוספת ${label}`}>+</button>
+      </div>
+      <div className="quick-choices" dir="ltr">
+        {choices.map((item) => <button type="button" key={item} className={item === value ? "selected" : ""} onClick={() => onChange(item)}>{item}</button>)}
+      </div>
+    </div>
+  );
+}
 function WorkoutBuilder({ onSave, onCancel }) {
   const [mode, setMode] = useState(null);
   const [w, setW] = useState(null);
@@ -945,20 +997,25 @@ function WorkoutBuilder({ onSave, onCancel }) {
       : current.minutes * 60 + Math.min(59, Number(value || 0));
     update(key, next);
   };
-  const durationField = (key, label, maxMinutes = 120) => {
-    const parts = durationParts(w[key]);
-    return (
-      <label className="field duration-field" key={key}>
-        {label}
-        <small>דקות : שניות</small>
-        <span className="duration-inputs" dir="ltr">
-          <input type="number" min="0" max={maxMinutes} step="1" value={parts.minutes} aria-label={`${label} דקות`} onChange={(e) => setDurationPart(key, "minutes", e.target.value)} />
-          <b>:</b>
-          <input type="number" min="0" max="59" step="1" value={String(parts.seconds).padStart(2, "0")} aria-label={`${label} שניות`} onChange={(e) => setDurationPart(key, "seconds", e.target.value)} />
-        </span>
-      </label>
-    );
-  };
+  const durationField = (key, label, maxMinutes = 120, hint = "בחרו זמן") => (
+    <DurationPicker
+      key={key}
+      label={label}
+      hint={hint}
+      value={Number(w[key]) || 0}
+      max={maxMinutes * 60}
+      onChange={(value) => update(key, value)}
+    />
+  );
+  const countField = (key, label, hint = "בחרו מספר") => (
+    <CountPicker
+      key={key}
+      label={label}
+      hint={hint}
+      value={Number(w[key]) || 1}
+      onChange={(value) => update(key, value)}
+    />
+  );
   const chooseMode = (item) => {
     setMode(item.id);
     setW({ ...item.defaults, id: commandId(), kind: item.id });
@@ -987,7 +1044,8 @@ function WorkoutBuilder({ onSave, onCancel }) {
                 key={item.id}
                 onClick={() => chooseMode(item)}
               >
-                <strong dir="ltr">{item.label}</strong>
+                <strong>{item.label}</strong>
+                <em dir="ltr">{item.shortLabel}</em>
                 <span>{item.description}</span>
               </button>
             ))}
@@ -997,27 +1055,26 @@ function WorkoutBuilder({ onSave, onCancel }) {
       ) : (
         <form className="builder-form" onSubmit={save}>
           <div className="builder-selected" style={{ "--mode-color": selected.color }}>
-            <strong dir="ltr">{selected.label}</strong>
+            <strong>{selected.label}</strong>
             <span>
               {mode === "EMOM"
-                ? `Every ${durationText(w.work)} for ${w.rounds || 0} minutes`
+                ? `מתחילים תרגיל חדש כל ${durationText(w.work)} · ${w.rounds || 0} דקות`
                 : mode === "AMRAP"
-                  ? `As many rounds as possible · ${durationText(w.work)}`
+                  ? `כמה שיותר סבבים במשך ${durationText(w.work)}`
                   : mode === "FOR TIME"
-                    ? `Finish within ${durationText(w.work)}`
+                    ? `מסיימים בתוך ${durationText(w.work)}`
                     : selected.description}
             </span>
           </div>
-          <label className="field">שם האימון<input value={w.name} maxLength={80} required onChange={(e) => update("name", e.target.value)} /></label>
+          <label className="field">שם האימון <small>אפשר להשאיר את השם המוצע</small><input value={w.name} maxLength={80} required onChange={(e) => update("name", e.target.value)} /></label>
           <div className="form-grid builder-fields">
-            {durationField("work", mode === "EMOM" ? "כל כמה זמן" : mode === "AMRAP" || mode === "FOR TIME" ? "זמן האימון" : "זמן עבודה")}
+            {durationField("work", mode === "EMOM" ? "כל כמה זמן מתחיל תרגיל חדש?" : mode === "AMRAP" ? "כמה זמן יש לאימון?" : mode === "FOR TIME" ? "מהו הזמן המקסימלי?" : "כמה זמן עובדים?")}
             {!["AMRAP", "FOR TIME", "EMOM"].includes(mode) && (
-              durationField("rest", "זמן מנוחה", 60)
+              durationField("rest", "כמה זמן נחים?", 60)
             )}
-            <label className="field">{mode === "EMOM" ? "מספר דקות" : "מספר סבבים"}<input type="number" min="1" max="100" step="1" value={w.rounds} onChange={(e) => update("rounds", e.target.value)} /></label>
-            {mode === "MIX" && <label className="field">מספר סטים<input type="number" min="1" max="20" step="1" value={w.sets} onChange={(e) => update("sets", e.target.value)} /></label>}
+            {!['AMRAP', 'FOR TIME'].includes(mode) && countField("rounds", mode === "EMOM" ? "לכמה דקות האימון?" : "כמה סבבים?")}
+            {mode === "MIX" && countField("sets", "כמה סטים?", "לא חובה")}
             {mode === "MIX" && durationField("between", "מנוחה בין סטים", 60)}
-            {durationField("prepare", "זמן הכנה", 5)}
           </div>
           <p className="builder-summary">
             {mode === "AMRAP" && `סבבים חופשיים במשך ${durationText(w.work)}`}
