@@ -3,7 +3,12 @@ module.exports = {
   expo: {
     name: "BareFit",
     slug: "barefit",
-    version: "0.3.0",
+    version: "0.4.1",
+    splash: {
+      image: "../public/icon.png",
+      resizeMode: "contain",
+      backgroundColor: "#030503",
+    },
     orientation: isTV ? "landscape" : "default",
     userInterfaceStyle: "dark",
     icon: "../public/icon.png",
@@ -18,7 +23,7 @@ module.exports = {
       },
     },
     android: {
-      versionCode: 3,
+      versionCode: 4,
       package: isTV ? "com.barefit.timer.tv" : "com.barefit.timer",
       permissions: ["INTERNET", "ACCESS_NETWORK_STATE", "WAKE_LOCK"],
       blockedPermissions: ["android.permission.RECORD_AUDIO", ...(isTV ? ["android.permission.CAMERA"] : [])],

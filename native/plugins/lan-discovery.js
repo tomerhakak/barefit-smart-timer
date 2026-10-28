@@ -19,6 +19,18 @@ async function copySources(projectRoot, androidRoot) {
   await fs.mkdir(localTarget, {recursive:true});
   for (const file of ['BareFitLocalHubModule.java', 'BareFitLocalHubPackage.java'])
     await fs.copyFile(path.join(projectRoot, 'modules', file), path.join(localTarget, file));
+  // The TV hub also serves the browser coach UI so scanning the QR from the
+  // phone's normal camera opens a usable app without a computer.
+  const webDist = path.resolve(projectRoot, '..', 'dist');
+  const webAssets = path.join(androidRoot, 'app/src/main/assets/barefit-web');
+  try {
+    await fs.access(path.join(webDist, 'index.html'));
+    await fs.rm(webAssets, {recursive:true, force:true});
+    await fs.cp(webDist, webAssets, {recursive:true});
+  } catch {
+    // Native-only builds can still compile; the TV hub will show an explicit
+    // missing-UI response until the web bundle is generated.
+  }
 }
 module.exports = config => {
   config = withAndroidManifest(config, c => {

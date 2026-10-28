@@ -47,6 +47,13 @@ const palette = {
   between: "#ffb146",
   finished: "#b4ff00",
 };
+const WORKOUT_MODES = [
+  { id: "AMRAP", label: "AMRAP", description: "כמה שיותר סבבים בזמן מוגדר", color: "#f39b1a", defaults: { name: "AMRAP", work: 360, rest: 0, rounds: 1, sets: 1, between: 0, prepare: 10 } },
+  { id: "FOR TIME", label: "FOR TIME", description: "לסיים את האימון בזמן הקצר ביותר", color: "#5d72ff", defaults: { name: "For Time", work: 600, rest: 0, rounds: 1, sets: 1, between: 0, prepare: 10 } },
+  { id: "EMOM", label: "EMOM", description: "כל דקה מתחילים משימה חדשה", color: "#a900e8", defaults: { name: "EMOM", work: 60, rest: 0, rounds: 6, sets: 1, between: 0, prepare: 10 } },
+  { id: "TABATA", label: "TABATA", description: "עבודה קצרה, מנוחה קצרה, בקצב קבוע", color: "#20c29a", defaults: { name: "טבטה", work: 20, rest: 10, rounds: 8, sets: 1, between: 0, prepare: 10 } },
+  { id: "MIX", label: "MIX", description: "בונים אימון סבבים וסטים משלכם", color: "#555a5f", defaults: { name: "אימון מעורב", work: 45, rest: 15, rounds: 8, sets: 3, between: 90, prepare: 10 } },
+];
 export default function App() {
   const params = new URLSearchParams(location.search);
   return params.get("mode") === "coach" || (!params.has("mode") && window.matchMedia("(max-width: 740px)").matches) ||
@@ -59,8 +66,11 @@ export default function App() {
 function Brand({ small = false }) {
   return (
     <div className={"brand " + (small ? "small" : "")} dir="ltr">
-      <img src="./assets/barefit-official-icon.webp" alt="" />
-      <strong>Barefit</strong>
+      <img
+        className="brand-logo"
+        src="./assets/barefit-official-logo.webp"
+        alt="Barefit"
+      />
     </div>
   );
 }
@@ -330,6 +340,9 @@ function Display() {
           </p>
         </div>
         <nav>
+          <button onClick={() => setPanel("builder")}>
+            <Plus size={18} /> בניית אימון
+          </button>
           <button onClick={() => setPanel("library")}>
             <BookOpen size={18} /> ספריית אימונים
           </button>
@@ -451,6 +464,16 @@ function Display() {
           onClose={() => setPanel(null)}
           onLoad={(p) => {
             if (t.execute("LOAD_WORKOUT", p)) setPanel(null);
+          }}
+        />
+      )}
+      {panel === "builder" && (
+        <WorkoutBuilder
+          onCancel={() => setPanel(null)}
+          onSave={(workout) => {
+            savePrograms([...programs.filter((item) => item.id !== workout.id), workout]);
+            if (t.execute("LOAD_WORKOUT", workout)) setPanel(null);
+            else setPanel("library");
           }}
         />
       )}
@@ -854,6 +877,84 @@ function WorkoutForm({ workout, onSave, onCancel }) {
     </form>
   );
 }
+function WorkoutBuilder({ onSave, onCancel }) {
+  const [mode, setMode] = useState(null);
+  const [w, setW] = useState(null);
+  const [err, setErr] = useState("");
+  const selected = WORKOUT_MODES.find((item) => item.id === mode);
+  const chooseMode = (item) => {
+    setMode(item.id);
+    setW({ ...item.defaults, id: commandId(), kind: item.id });
+    setErr("");
+  };
+  const update = (key, value) => setW((current) => ({ ...current, [key]: value }));
+  const save = (event) => {
+    event.preventDefault();
+    try {
+      onSave(validateWorkout({ ...w, kind: mode }));
+    } catch (error) {
+      setErr(error.message);
+    }
+  };
+  return (
+    <Overlay title={selected ? `הגדרת ${selected.label}` : "בחירת סוג אימון"} wide onClose={onCancel}>
+      {!selected ? (
+        <>
+          <p className="builder-intro">בחרו תבנית. אחר כך נגדיר יחד את הזמן, הסבבים והסטים.</p>
+          <div className="mode-grid" role="list" aria-label="סוגי אימון">
+            {WORKOUT_MODES.map((item) => (
+              <button
+                type="button"
+                className="mode-option"
+                style={{ "--mode-color": item.color }}
+                key={item.id}
+                onClick={() => chooseMode(item)}
+              >
+                <strong dir="ltr">{item.label}</strong>
+                <span>{item.description}</span>
+              </button>
+            ))}
+          </div>
+          <div className="dialog-actions"><Button type="button" onClick={onCancel}>ביטול</Button></div>
+        </>
+      ) : (
+        <form className="builder-form" onSubmit={save}>
+          <div className="builder-selected" style={{ "--mode-color": selected.color }}>
+            <strong dir="ltr">{selected.label}</strong>
+            <span>{selected.description}</span>
+          </div>
+          <label className="field">שם האימון<input value={w.name} maxLength={80} required onChange={(e) => update("name", e.target.value)} /></label>
+          <div className="form-grid builder-fields">
+            <label className="field">
+              {mode === "EMOM" ? "כל כמה שניות" : mode === "AMRAP" || mode === "FOR TIME" ? "זמן האימון" : "זמן עבודה"}
+              <small>בשניות</small>
+              <input type="number" min="1" max="7200" step="1" value={w.work} onChange={(e) => update("work", e.target.value)} />
+            </label>
+            {!["AMRAP", "FOR TIME", "EMOM"].includes(mode) && (
+              <label className="field">זמן מנוחה<small>בשניות</small><input type="number" min="0" max="3600" step="1" value={w.rest} onChange={(e) => update("rest", e.target.value)} /></label>
+            )}
+            <label className="field">{mode === "EMOM" ? "מספר דקות" : "מספר סבבים"}<input type="number" min="1" max="100" step="1" value={w.rounds} onChange={(e) => update("rounds", e.target.value)} /></label>
+            {mode === "MIX" && <label className="field">מספר סטים<input type="number" min="1" max="20" step="1" value={w.sets} onChange={(e) => update("sets", e.target.value)} /></label>}
+            {mode === "MIX" && <label className="field">מנוחה בין סטים<small>בשניות</small><input type="number" min="0" max="3600" step="1" value={w.between} onChange={(e) => update("between", e.target.value)} /></label>}
+            <label className="field">זמן הכנה<small>בשניות</small><input type="number" min="0" max="300" step="1" value={w.prepare} onChange={(e) => update("prepare", e.target.value)} /></label>
+          </div>
+          <p className="builder-summary">
+            {mode === "AMRAP" && `סבבים חופשיים במשך ${w.work || 0} שניות`}
+            {mode === "FOR TIME" && `מסיימים בתוך ${w.work || 0} שניות`}
+            {mode === "EMOM" && `משימה חדשה כל ${w.work || 0} שניות, ${w.rounds || 0} פעמים`}
+            {mode === "TABATA" && `${w.work || 0} שניות עבודה · ${w.rest || 0} שניות מנוחה · ${w.rounds || 0} סבבים`}
+            {mode === "MIX" && `${w.rounds || 0} סבבים × ${w.sets || 0} סטים`}
+          </p>
+          {err && <p className="warning">{err}</p>}
+          <div className="dialog-actions">
+            <Button type="button" onClick={() => setMode(null)}>חזרה לסוגים</Button>
+            <Button primary type="submit" icon={Check}>שמירה ובחירה</Button>
+          </div>
+        </form>
+      )}
+    </Overlay>
+  );
+}
 function Coach() {
   const [target, setTarget] = useState(() => {
     const base = read('hub',location.origin);
@@ -1062,7 +1163,7 @@ function Coach() {
         </span>
       </header>
       <nav className="phone-actions" aria-label="פעולות בטלפון">
-        <Button primary icon={Plus} onClick={()=>setPanel('create')}>בניית אימון</Button>
+        <Button primary icon={Plus} onClick={()=>setPanel('builder')}>בניית אימון</Button>
         <Button icon={Camera} onClick={()=>setPanel('scan')} disabled={pairBusy||waiting}>סריקת QR</Button>
         <Button icon={BookOpen} onClick={()=>setPanel('library')}>האימונים שלי</Button>
         {credentials&&<Button icon={Monitor} onClick={()=>{setTarget(t=>({...t,credentials:null}));setView(null);setHostOnline(false);}}>בחירת סטודיו</Button>}
@@ -1166,6 +1267,13 @@ function Coach() {
       )}
       {panel==='remote-settings' && <RemoteSettings settings={phoneSettings} execute={execute} onClose={()=>setPanel(null)}/>}
       {panel === 'scan' && <Overlay title="סריקת קוד מהמסך" onClose={()=>setPanel(null)}><QrScanner onScan={connectPair}/></Overlay>}
+      {panel === 'builder' && <WorkoutBuilder onCancel={()=>setPanel(null)} onSave={(workout)=>{
+        const next=[...programs.filter((item)=>item.id!==workout.id),workout];
+        setPrograms(next);
+        if(!write('programs',next)) setError('שמירת האימון בטלפון נכשלה');
+        if(canLoad && execute('LOAD_WORKOUT',workout)) setPanel(null);
+        else { setPanel('library'); setError('האימון נשמר בטלפון. התחברו למסך כדי להפעיל אותו.'); }
+      }} />}
       {(panel === "library" || panel === 'create') && (
         <Library
           active={view?.workout}

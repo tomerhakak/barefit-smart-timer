@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
+  Image,
   Pressable,
   StyleSheet,
   ImageBackground,
@@ -658,9 +659,14 @@ export default function App() {
   };
   if (!ready || !fonts)
     return (
-      <View style={s.root}>
-        <Text style={s.title}>BareFit</Text>
-        <Text style={s.text}>טוען את הסטודיו…</Text>
+      <View style={[s.root, s.loading]}>
+        <Image
+          source={require("../public/assets/barefit-official-logo.webp")}
+          resizeMode="contain"
+          style={s.loadingLogo}
+          accessibilityLabel="Barefit"
+        />
+        <Text style={s.loadingText}>טוען את הסטודיו…</Text>
       </View>
     );
   return (
@@ -671,9 +677,12 @@ export default function App() {
     >
       <View style={[s.shade, clean&&{backgroundColor:'#030503'},hall && {backgroundColor:"#030503ed"}]} />
       <View style={[s.header, { paddingHorizontal: isTV ? 40 : 20 }]}>
-        <Text style={[s.brand, { fontSize: isTV ? 50 : 34 }]}>
-          Barefit<Text style={{ color: lime }}> /</Text>
-        </Text>
+        <Image
+          source={require("../public/assets/barefit-official-logo.webp")}
+          resizeMode="contain"
+          style={{width:isTV ? 250 : 180, height:isTV ? 78 : 56}}
+          accessibilityLabel="Barefit"
+        />
         <View style={s.row}>
           <Action onPress={() => setPanel("settings")}>הגדרות</Action>
           {isTV && <Action onPress={() => setPanel("library")}>אימונים</Action>}
@@ -1086,7 +1095,10 @@ export default function App() {
   );
 }
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#070b04" },
+  root: { flex: 1, backgroundColor: "#030503" },
+  loading: { alignItems: "center", justifyContent: "center", padding: 24 },
+  loadingLogo: { width: 260, height: 100, marginBottom: 18 },
+  loadingText: { fontFamily: "Heebo", color: "#b7c1ab", fontSize: 16 },
   shade: { ...StyleSheet.absoluteFillObject, backgroundColor: "#0007" },
   header: {
     flexDirection: "row",

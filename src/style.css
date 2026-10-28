@@ -120,17 +120,14 @@ input {
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  width: clamp(180px, 16vw, 260px);
+  height: clamp(54px, 4.7vw, 76px);
 }
-.brand img {
-  width: clamp(48px, 5.5vw, 90px);
-  height: auto;
-}
-.brand strong {
-  font-family: Anton, Impact, sans-serif;
-  font-size: clamp(34px, 4.3vw, 70px);
-  font-weight: 400;
-  letter-spacing: -1px;
+.brand-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .brand-block p {
   margin: 18px 0 0 8px;
@@ -662,6 +659,74 @@ input[type="range"] {
   font-size: 14px;
   color: #b8c3ac;
 }
+.builder-intro {
+  color: #c6cebd;
+  line-height: 1.8;
+  margin: 0 0 22px;
+}
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+.mode-option {
+  min-height: 142px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  text-align: right;
+  gap: 8px;
+  padding: 16px 13px;
+  color: #f7f8f3;
+  background: #0a0d08;
+  border: 1px solid #38412e;
+  border-radius: 12px;
+  box-shadow: inset 0 3px 0 var(--mode-color), 0 8px 22px #0003;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+.mode-option:hover,
+.mode-option:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--mode-color);
+  background: #141b0f;
+}
+.mode-option strong {
+  width: 100%;
+  font-family: Anton, Impact, sans-serif;
+  font-size: 20px;
+  letter-spacing: .02em;
+  color: var(--mode-color);
+}
+.mode-option span {
+  color: #aeb9a2;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.builder-selected {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: 11px 14px;
+  margin: 0 0 18px;
+  border: 1px solid var(--mode-color);
+  border-radius: 10px;
+  background: #11170d;
+}
+.builder-selected strong {
+  color: var(--mode-color);
+  font-family: Anton, Impact, sans-serif;
+  font-size: 22px;
+}
+.builder-selected span { color: #c3ccb9; font-size: 12px; }
+.builder-summary {
+  min-height: 24px;
+  margin: 2px 0 8px;
+  color: #b4ff00;
+  font-size: 13px;
+}
+.builder-fields { margin-bottom: 4px; }
 .program-list {
   display: flex;
   flex-direction: column;
@@ -740,14 +805,9 @@ input[type="range"] {
   border-bottom: 1px solid #303a24;
   padding-bottom: 20px;
 }
-.brand.small img {
-  width: 42px;
-}
-.brand.small strong {
-  font-size: 30px;
-}
 .brand.small {
-  gap: 8px;
+  width: 150px;
+  height: 48px;
 }
 .coach-header > span {
   font-size: 12px;
@@ -978,11 +1038,9 @@ input[type="range"] {
     flex-wrap: wrap;
     gap: 20px;
   }
-  .brand strong {
-    font-size: 36px;
-  }
-  .brand img {
-    width: 48px;
+  .brand {
+    width: 168px;
+    height: 52px;
   }
   .brand-block p {
     display: none;
@@ -1096,6 +1154,11 @@ input[type="range"] {
     align-items: flex-start;
     gap: 15px;
   }
+  .mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mode-option { min-height: 112px; padding: 13px 11px; }
+  .mode-option strong { font-size: 18px; }
+  .mode-option span { font-size: 11px; }
+  .builder-selected { align-items: flex-start; flex-direction: column; gap: 2px; }
   .program-list article {
     flex-wrap: wrap;
     gap: 10px;
@@ -1143,11 +1206,9 @@ input[type="range"] {
   flex-shrink: 0;
 }
 @supports not (font-size: clamp(10px, 1vw, 20px)) {
-  .brand img {
-    width: 5.5vw;
-  }
-  .brand strong {
-    font-size: 4.3vw;
+  .brand {
+    width: 16vw;
+    height: 4.7vw;
   }
   .timer-stage {
     width: 51vw;
@@ -1196,8 +1257,7 @@ input[type="range"] {
 .hall .photo { opacity: .12; }
 .hall .photo-shade { background: #0008; }
 .hall .topbar { top: 2vh; left: 3vw; right: 3vw; align-items: center; }
-.hall .brand img { width: 4.5vh; }
-.hall .brand strong { font-size: 4vh; }
+.hall .brand { width: 190px; height: 56px; }
 .hall .brand-block p, .hall .workout-info { display: none; }
 .hall .topbar nav button { font-size: 1.8vh; }
 .hall .timer-stage { top: 11vh; bottom: 9vh; width: 92vw; max-width: none; }
@@ -1230,8 +1290,7 @@ input[type="range"] {
 @media (max-width: 740px) and (orientation: portrait) {
   .hall .topbar { top: 20px; gap: 8px; flex-wrap: nowrap; }
   .hall .topbar nav button { font-size: 0; }
-  .hall .brand strong { font-size: 30px; }
-  .hall .brand img { width: 36px; }
+  .hall .brand { width: 150px; height: 46px; }
   .hall .timer-stage { top: 16vh; bottom: 13vh; width: 94vw; }
   .hall .timer-inner .phase-label { font-size: 11vw; }
   .hall .timer-inner .clock { font-size: 31vw; }
